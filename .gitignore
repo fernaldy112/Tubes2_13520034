@@ -186,3 +186,6 @@ $RECYCLE.BIN/
 .DS_Store
 
 _NCrunch*
+
+# Visual studio
+.vs
