@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace Folder_Crawling_WPF
+namespace FolderCrawler
 {
     /// <summary>
     /// Interaction logic for App.xaml

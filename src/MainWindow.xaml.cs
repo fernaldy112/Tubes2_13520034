@@ -1,11 +1,12 @@
 ﻿using System;
+using System.IO;
 using System.Windows;
 using Microsoft.Msagl.Drawing;
 using Microsoft.WindowsAPICodePack.Dialogs;
-using System.IO;
-using Folder_Crawling_WPF;
+using FolderCrawler;
+using System.Threading.Tasks;
 
-namespace Folder_Crawling_WPF
+namespace FolderCrawler
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -13,27 +14,14 @@ namespace Folder_Crawling_WPF
     public partial class MainWindow : Window
     {
 
-        public Graph graph = new();
+        private GraphContext _graphContext;
 
         public MainWindow()
         {
             InitializeComponent();
-            Loaded += OnLoad;
+            _graphContext = new(ref GraphControl);
+            _graphContext.ResetGraph();
 
-        }
-
-        private void OnLoad(object sender, RoutedEventArgs e)
-        {
-            //graph.AddEdge("Octagon", "Hexagon");
-            //graph.FindNode("Octagon").Attr.Shape = Shape.Octagon;
-            //graph.FindNode("Hexagon").Attr.Shape = Shape.Hexagon;
-            //graph.Attr.LayerDirection = LayerDirection.TB;
-            //graph.AddNode("Something");
-            //graph.AddEdge("Hexagon", "Something");
-
-            graphContext.Graph = graph;
-
-            
         }
 
         private void ButtonOnClick(object sender, RoutedEventArgs e)
@@ -45,19 +33,59 @@ namespace Folder_Crawling_WPF
                 );
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                string path = dialog.FileName;
-                DFSClass d = new(ref graphContext);
-                d.DFS(path, path, "something", false);
+                GraphControl.Graph = new Graph();
+                DirectoryPath.Text = dialog.FileName;
+            }
+        }
 
-                //Graph g = graphContext.Graph;
-                //graphContext.Graph = new Graph();
-                //graphContext.Graph = g;
-                
+
+        private void OnSearch(object sender, RoutedEventArgs e)
+        {
+            bool useDfs = DfsModeButton.IsChecked ?? false;
+            bool useBfs = BfsModeButton.IsChecked ?? false;
+
+            if (!useDfs && !useBfs)
+            {
+                // Handle error here
+            }
+
+            string fileToSearch = SearchInput.Text;
+
+            if (fileToSearch == "")
+            {
+                // Handle error here
+            }
+
+            string path = DirectoryPath.Text;
+
+            if (!Directory.Exists(path))
+            {
+                // Handle error here
+            }
+
+            bool exhaustive = ExhaustiveCheckBox.IsChecked ?? false;
+
+            if (useDfs)
+            {
+                Task.Run(() =>
+                {
+                    DFSClass d = new(ref _graphContext);
+                    d.DFS(path, path, fileToSearch, exhaustive);
+                    _graphContext.ForceUpdateView();
+                });
+            }
+            else
+            {
+                Task.Run(() =>
+                {
+                    BFSClass b = new(ref _graphContext);
+                    b.BFS(path, fileToSearch, exhaustive);
+                    _graphContext.ForceUpdateView();
+                });
             }
 
 
         }
 
-        
     }
 }
