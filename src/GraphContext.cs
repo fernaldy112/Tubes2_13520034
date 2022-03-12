@@ -2,6 +2,8 @@
 using System.Windows;
 using System.Windows.Threading;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Documents;
 using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.WpfGraphControl;
 
@@ -18,8 +20,10 @@ namespace FolderCrawler
         Dictionary<string, Dictionary<string, Edge>> Edges;
 
         // TODO: Implement nodes & edges store
-        private List<Node> _nodes;
-        private List<Node> _edges;
+        private Dictionary<string, Node> _nodes;
+        private Dictionary<string, Edge> _edges;
+        private Dictionary<string, string> _parents;
+
 
         private bool _isUpdatingView;
         private DispatcherOperation UpdateViewOperation;
@@ -34,7 +38,9 @@ namespace FolderCrawler
             NodeColorQueue = new Queue<Tuple<string, string>>();
             Edges = new Dictionary<string, Dictionary<string, Edge>>();
 
-            _nodes = new List<Node>();
+            _nodes = new Dictionary<string, Node>();
+            _edges = new Dictionary<string, Edge>();
+            _parents = new Dictionary<string, string>();
         }
 
 
@@ -68,7 +74,10 @@ namespace FolderCrawler
         public void ResetGraph()
         {
             Control.Graph = new Graph();
-            RequestUpdateView();
+            _nodes = new Dictionary<string, Node>();
+            _edges = new Dictionary<string, Edge>();
+            _parents = new Dictionary<string, string>();
+            UpdateView();
         }
 
         public void EnqueueAddEdge(string source, string target)
@@ -84,6 +93,87 @@ namespace FolderCrawler
             //        Control.Graph = NullGraph;
             //        Control.Graph = g;
             //    });
+        }
+
+        public void AddNode(string path, string label)
+        {
+            Node node;
+            if (!_nodes.TryGetValue(path, out node))
+            {
+                Application.Current.Dispatcher.BeginInvoke(
+                    DispatcherPriority.Background,
+                    () =>
+                    {
+                        node = new(path);
+                        node.LabelText = label;
+                        _nodes.Add(path, node);
+                        Control.Graph.AddNode(node);
+                    }).Wait();
+            }
+        }
+
+        public void AddEdge(string sourceNode, string destNode)
+        {
+            if (!_nodes.TryGetValue(sourceNode, out Node _)
+                || !_nodes.TryGetValue(destNode, out Node _))
+            {
+                throw new KeyNotFoundException("Invalid node(s)");
+            }
+
+            if (!_edges.TryGetValue(destNode, out Edge _))
+            {
+                _parents.Add(destNode, sourceNode);
+                Application.Current.Dispatcher.BeginInvoke(
+                    DispatcherPriority.Background,
+                    () =>
+                    {
+                        Graph graph = Control.Graph;
+                        Edge edge = graph.AddEdge(sourceNode, destNode);
+                        _edges.Add(destNode, edge);
+
+                        UpdateView();
+                    }).Wait();
+            }
+        }
+
+        public void ColorizeNode(string path, Color color)
+        {
+            if (!_nodes.TryGetValue(path, out Node node))
+            {
+                throw new KeyNotFoundException("Invalid node(s)");
+            }
+
+            node.Attr.Color = color;
+            UpdateView();
+        }
+
+        public void ColorizeEdge(string destNode, Color color)
+        {
+            if (!_edges.TryGetValue(destNode, out Edge edge))
+            {
+                throw new KeyNotFoundException("Invalid node(s)");
+            }
+
+            Application.Current.Dispatcher.BeginInvoke(
+                DispatcherPriority.Background,
+                () =>
+                {
+                    edge.Attr.Color = color;
+                    UpdateView();
+                }).Wait();
+        }
+
+        public void ColorizePath(string destNode, Color color)
+        {
+            string path = destNode;
+            ColorizeEdge(path, color);
+            while (_parents.TryGetValue(path, out path))
+            {
+                if (_parents.TryGetValue(path, out _))
+                {
+                    ColorizeEdge(path, color);
+                }
+            }
         }
 
         public void EnqueueColorEdge(string source, string target, Color color)
@@ -162,7 +252,7 @@ namespace FolderCrawler
             //Control.Graph = g;
         }
 
-        private void UpdateView()
+        public void UpdateView()
         {
             Application.Current.Dispatcher.BeginInvoke(
                 DispatcherPriority.Background,

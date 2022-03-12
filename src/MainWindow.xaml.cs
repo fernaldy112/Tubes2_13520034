@@ -41,6 +41,8 @@ namespace FolderCrawler
 
         private void OnSearch(object sender, RoutedEventArgs e)
         {
+            _graphContext.ResetGraph();
+
             bool useDfs = DfsModeButton.IsChecked ?? false;
             bool useBfs = BfsModeButton.IsChecked ?? false;
 
