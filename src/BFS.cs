@@ -8,9 +8,13 @@ namespace FolderCrawler
     public class BFSClass
     {
         private GraphContext _graphContext;
+
+        private List<string> _result;
+
         public BFSClass(ref GraphContext Context)
         {
             _graphContext = Context;
+            _result = new List<string>();
         }
 
         public void BFS(string dir, string file_yang_dicari, bool all)
@@ -26,9 +30,22 @@ namespace FolderCrawler
             while (!(dirQueue.Count == 0) && !(found && !all))
             {
                 curDir = dirQueue.Dequeue();
+
+                _graphContext.AddNode(curDir,
+                    new DirectoryInfo(curDir).Name);
+
                 files = Directory.GetFiles(curDir, "*");
 
                 // TODO: Enqueue node & edge
+                for (i = 0; i < files.Length; i++)
+                {
+                    string parent = curDir;
+                    string filePath = files[i];
+
+                    _graphContext.AddNode(filePath,
+                        new DirectoryInfo(filePath).Name);
+                    _graphContext.AddEdge(parent, filePath);
+                }
 
                 i = 0;
                 n = files.Length;
@@ -39,13 +56,16 @@ namespace FolderCrawler
                     if (FileName == file_yang_dicari)
                     {
                         found = true;
-                        // TODO: Color edge path to file
+                        _graphContext.ColorizeEdge(files[i], ColorPalette.BLUE);
+                        _result.Add(files[i]);
                     }
                     else
                     {
-                        i++;
                         // TODO: Color dead end node edge
+                        _graphContext.ColorizeEdge(files[i], ColorPalette.RED);
                     }
+                    i++;
+
                 }
 
                 folders = Directory.GetDirectories(curDir);
@@ -53,15 +73,27 @@ namespace FolderCrawler
                 n = folders.Length;
                 while (i < n && !(found && !all))
                 {
-                    FolderName = Path.GetRelativePath(curDir, folders[i]);
                     //Console.WriteLine(FolderName);
-                    dirQueue.Enqueue(folders[i]);
+                    string folderPath = folders[i];
+                    dirQueue.Enqueue(folderPath);
 
                     // TODO: Enqueue node & edge
+                    string parent = curDir;
+                    _graphContext.AddNode(folderPath,
+                        new DirectoryInfo(folderPath).Name);
+                    _graphContext.AddEdge(parent, folderPath);
+
+                    _graphContext.ColorizeEdge(folderPath, ColorPalette.RED);
 
                     i++;
                 }
             }
+
+            _result.ForEach(
+                (string filePath) =>
+                {
+                    _graphContext.ColorizePath(filePath, ColorPalette.BLUE);
+                });
         }
 
     }
