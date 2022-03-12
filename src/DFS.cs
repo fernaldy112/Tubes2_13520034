@@ -109,4 +109,10 @@ public class DFSClass
                 });
         }
     }
+
+    public List<string> Result()
+    {
+        return _result;
+    }
+
 }

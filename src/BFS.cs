@@ -96,6 +96,11 @@ namespace FolderCrawler
                 });
         }
 
+        public List<string> Result()
+        {
+            return _result;
+        }
+
     }
 
 

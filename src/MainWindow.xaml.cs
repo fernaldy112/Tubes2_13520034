@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Windows;
 using Microsoft.Msagl.Drawing;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using FolderCrawler;
 using System.Threading.Tasks;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using DispatcherPriority = System.Windows.Threading.DispatcherPriority;
 
 namespace FolderCrawler
 {
@@ -73,7 +77,8 @@ namespace FolderCrawler
                 {
                     DFSClass d = new(ref _graphContext);
                     d.DFS(path, path, fileToSearch, exhaustive);
-                    _graphContext.ForceUpdateView();
+                    ShowSearchResult(d.Result());
+
                 });
             }
             else
@@ -82,11 +87,37 @@ namespace FolderCrawler
                 {
                     BFSClass b = new(ref _graphContext);
                     b.BFS(path, fileToSearch, exhaustive);
-                    _graphContext.ForceUpdateView();
+                    ShowSearchResult(b.Result());
+
+
                 });
             }
+        }
 
+        private void ShowSearchResult(List<string> result)
+        {
+            Application.Current.Dispatcher.BeginInvoke(
+                DispatcherPriority.Background,
+                () =>
+                {
+                    result.ForEach((string path) =>
+                    {
+                        Hyperlink link = CreateNewResultItem(path);
+                        ResultView.Items.Add(link);
+                    });
+                });
+        }
 
+        private Hyperlink CreateNewResultItem(string path)
+        {
+            Hyperlink link = new();
+            link.Inlines.Add(path);
+            link.Click += (object _, RoutedEventArgs _) =>
+            {
+                System.Diagnostics.Process.Start("explorer.exe", 
+                    Path.GetDirectoryName(path));
+            };
+            return link;
         }
 
     }

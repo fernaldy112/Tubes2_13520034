@@ -171,6 +171,9 @@
                     Click="OnSearch">
                 </Button>
 
+                <ListView
+                    x:Name="ResultView">
+                </ListView>
 
             </StackPanel>
 
