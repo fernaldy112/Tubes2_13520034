@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Windows;
+using System.Windows.Documents;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.Msagl.Drawing;
 using Microsoft.WindowsAPICodePack.Dialogs;
-using System.Threading.Tasks;
-using System.Windows.Documents;
 using DispatcherPriority = System.Windows.Threading.DispatcherPriority;
 
 namespace FolderCrawler
@@ -23,10 +23,9 @@ namespace FolderCrawler
             InitializeComponent();
             _graphContext = new(ref GraphControl);
             _graphContext.ResetGraph();
-
         }
 
-        private void ButtonOnClick(object sender, RoutedEventArgs e)
+        private void OnChooseDir(object sender, RoutedEventArgs e)
         {
             CommonOpenFileDialog dialog = new();
             dialog.IsFolderPicker = true;
@@ -43,53 +42,77 @@ namespace FolderCrawler
 
         private void OnSearch(object sender, RoutedEventArgs e)
         {
+            HideErrorMsg();
+            ResultView.Visibility = Visibility.Collapsed;
             _graphContext.ResetGraph();
+
+            if (ValidateInput())
+            {
+                bool useDfs = DfsModeButton.IsChecked ?? false;
+                string fileToSearch = SearchInput.Text;
+                string path = DirectoryPath.Text;
+
+                bool exhaustive = ExhaustiveCheckBox.IsChecked ?? false;
+
+                if (useDfs)
+                {
+                    Task.Run(() =>
+                    {
+                        Dfs searcher = new(ref _graphContext);
+                        searcher.Search(path, fileToSearch, exhaustive);
+                        ShowSearchResult(searcher.Result());
+                    });
+                }
+                else
+                {
+                    Task.Run(() =>
+                    {
+                        Bfs searcher = new(ref _graphContext);
+                        searcher.Search(path, fileToSearch, exhaustive);
+                        ShowSearchResult(searcher.Result());
+                    });
+                }
+            }
+        }
+
+        private bool ValidateInput()
+        {
+            bool valid = true;
 
             bool useDfs = DfsModeButton.IsChecked ?? false;
             bool useBfs = BfsModeButton.IsChecked ?? false;
 
             if (!useDfs && !useBfs)
             {
-                // Handle error here
+                ModeErrorMsg.Visibility = Visibility.Visible;
+                valid = false;
             }
 
             string fileToSearch = SearchInput.Text;
 
             if (fileToSearch == "")
             {
-                // Handle error here
+                SearchErrorMsg.Visibility = Visibility.Visible;
+                valid = false;
             }
 
             string path = DirectoryPath.Text;
 
             if (!Directory.Exists(path))
             {
-                // Handle error here
+                DirectoryErrorMsg.Visibility = Visibility.Visible;
+                valid = false;
             }
 
-            bool exhaustive = ExhaustiveCheckBox.IsChecked ?? false;
+            return valid;
+        }
 
-            if (useDfs)
-            {
-                Task.Run(() =>
-                {
-                    Dfs searcher = new(ref _graphContext);
-                    searcher.Search(path, fileToSearch, exhaustive);
-                    ShowSearchResult(searcher.Result());
-
-                });
-            }
-            else
-            {
-                Task.Run(() =>
-                {
-                    Bfs searcher = new(ref _graphContext);
-                    searcher.Search(path, fileToSearch, exhaustive);
-                    ShowSearchResult(searcher.Result());
-
-
-                });
-            }
+        private void HideErrorMsg()
+        {
+            ModeErrorMsg.Visibility = Visibility.Collapsed;
+            SearchErrorMsg.Visibility = Visibility.Collapsed;
+            DirectoryErrorMsg.Visibility = Visibility.Collapsed;
+            NotFoundMsg.Visibility = Visibility.Collapsed;
         }
 
         private void ShowSearchResult(List<string> result)
@@ -98,11 +121,19 @@ namespace FolderCrawler
                 DispatcherPriority.Background,
                 () =>
                 {
-                    result.ForEach(path =>
+                    if (result.Count != 0)
                     {
-                        Hyperlink link = CreateNewResultItem(path);
-                        ResultView.Items.Add(link);
-                    });
+                        result.ForEach(path =>
+                        {
+                            Hyperlink link = CreateNewResultItem(path);
+                            ResultView.Items.Add(link);
+                        });
+                        ResultView.Visibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        NotFoundMsg.Visibility = Visibility.Visible;
+                    }
                 });
         }
 
@@ -110,6 +141,10 @@ namespace FolderCrawler
         {
             Hyperlink link = new();
             link.Inlines.Add(path);
+            link.FontFamily = new("Segoe UI");
+            link.FontSize = 14;
+            link.FontWeight = FontWeights.DemiBold;
+
             link.Click += (_, _) =>
             {
                 System.Diagnostics.Process.Start("explorer.exe",
