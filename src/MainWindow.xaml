@@ -58,7 +58,7 @@
                     <Button
                         Style="{StaticResource DefaultFont}"
                         Content="Choose Directory ..."
-                        Click="ButtonOnClick"
+                        Click="OnChooseDir"
                     >
                         <Button.Effect>
                             <DropShadowEffect
@@ -98,6 +98,16 @@
                 </Grid>
 
                 <TextBlock
+                    Text="Please choose a directory!"
+                    FontSize="12"
+                    Margin="0 8"
+                    Foreground="Red"
+                    Style="{StaticResource DefaultFont}"
+                    Visibility="Collapsed"
+                    x:Name="DirectoryErrorMsg"
+                ></TextBlock>
+
+                <TextBlock
                     Text="Search file"
                     Margin="16"
                     FontSize="18"
@@ -111,6 +121,16 @@
                     Background="#eeeeee"
                     Style="{StaticResource DefaultFont}"
                 ></TextBox>
+
+                <TextBlock
+                    Text="File name can not be empty!"
+                    FontSize="12"
+                    Margin="0 8"
+                    Foreground="Red"
+                    Style="{StaticResource DefaultFont}"
+                    Visibility="Collapsed"
+                    x:Name="SearchErrorMsg"
+                ></TextBlock>
 
                 <CheckBox
                     Margin="0 8"
@@ -157,6 +177,16 @@
                     </TextBlock>
                 </RadioButton>
 
+                <TextBlock
+                    Text="Please choose a searching mode!"
+                    FontSize="12"
+                    Margin="0 8"
+                    Foreground="Red"
+                    Style="{StaticResource DefaultFont}"
+                    Visibility="Collapsed"
+                    x:Name="ModeErrorMsg"
+                ></TextBlock>
+
                 <Button
                     Background="#00b0ff"
                     Content="SEARCH"
@@ -172,8 +202,19 @@
                 </Button>
 
                 <ListView
-                    x:Name="ResultView">
+                    x:Name="ResultView"
+                    Visibility="Collapsed">
                 </ListView>
+
+                <TextBlock
+                    Text="File not found!"
+                    FontSize="12"
+                    Margin="0 8"
+                    Foreground="Red"
+                    Style="{StaticResource DefaultFont}"
+                    Visibility="Collapsed"
+                    x:Name="NotFoundMsg"
+                ></TextBlock>
 
             </StackPanel>
 
@@ -186,12 +227,11 @@
                 <wpfgc:AutomaticGraphLayoutControl
                     x:Name="GraphControl"
                     VerticalScrollBarVisibility="Hidden">
-
                 </wpfgc:AutomaticGraphLayoutControl>
             </Border>
+
         </Grid>
 
-
-
     </Grid>
+
 </Window>
