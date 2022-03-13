@@ -4,9 +4,7 @@ using System.IO;
 using System.Windows;
 using Microsoft.Msagl.Drawing;
 using Microsoft.WindowsAPICodePack.Dialogs;
-using FolderCrawler;
 using System.Threading.Tasks;
-using System.Windows.Controls;
 using System.Windows.Documents;
 using DispatcherPriority = System.Windows.Threading.DispatcherPriority;
 
@@ -75,9 +73,9 @@ namespace FolderCrawler
             {
                 Task.Run(() =>
                 {
-                    DFSClass d = new(ref _graphContext);
-                    d.DFS(path, path, fileToSearch, exhaustive);
-                    ShowSearchResult(d.Result());
+                    Dfs searcher = new(ref _graphContext);
+                    searcher.Search(path, fileToSearch, exhaustive);
+                    ShowSearchResult(searcher.Result());
 
                 });
             }
@@ -85,9 +83,9 @@ namespace FolderCrawler
             {
                 Task.Run(() =>
                 {
-                    BFSClass b = new(ref _graphContext);
-                    b.BFS(path, fileToSearch, exhaustive);
-                    ShowSearchResult(b.Result());
+                    Bfs searcher = new(ref _graphContext);
+                    searcher.Search(path, fileToSearch, exhaustive);
+                    ShowSearchResult(searcher.Result());
 
 
                 });
@@ -100,7 +98,7 @@ namespace FolderCrawler
                 DispatcherPriority.Background,
                 () =>
                 {
-                    result.ForEach((string path) =>
+                    result.ForEach(path =>
                     {
                         Hyperlink link = CreateNewResultItem(path);
                         ResultView.Items.Add(link);
@@ -112,9 +110,9 @@ namespace FolderCrawler
         {
             Hyperlink link = new();
             link.Inlines.Add(path);
-            link.Click += (object _, RoutedEventArgs _) =>
+            link.Click += (_, _) =>
             {
-                System.Diagnostics.Process.Start("explorer.exe", 
+                System.Diagnostics.Process.Start("explorer.exe",
                     Path.GetDirectoryName(path));
             };
             return link;

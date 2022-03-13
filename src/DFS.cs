@@ -1,118 +1,105 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
-using Microsoft.Msagl.Drawing;
-using FolderCrawler;
+﻿using System.IO;
+using System.Collections.Generic;
 
-public class DFSClass
+namespace FolderCrawler
 {
-    bool found;
-    GraphContext graphContext;
-    private List<string> _result;
-
-    public DFSClass(ref GraphContext context)
+    public class Dfs
     {
-        graphContext = context;
-        _result = new List<string>();
-    }
+        private bool _found;
+        private readonly GraphContext _graphContext;
+        private readonly List<string> _result;
 
-    public void DFS(string absolutepath, string namaFolderSaatIni, string file_yang_dicari, bool all)
-    {
-        if (absolutepath == namaFolderSaatIni)
+        public Dfs(ref GraphContext context)
         {
-            graphContext.AddNode(absolutepath, absolutepath);
-            graphContext.UpdateView();
+            _graphContext = context;
+            _result = new List<string>();
         }
 
-        string parentPath = absolutepath;
-
-        /*
-        absolutepath - path absolute dari folder yang ingin dicari isinya
-        namaFolderSaatIni - mengambil nama terahir dari sebuah absolute path, digunakan untuk menyambungkan graf
-        file_yang_dicari - nama dari file yang dicari
-        all - True jika ingin mencari semua file, false jika tidak
-        */
-
-        //Kalo File Belum Ketemu atau mode yang dicari adalah mecari semua file 
-        if (!found || all)
+        public void Search(string dir, string fileToFind, bool exhaustive)
         {
-            //Ngecek Folder (Bagian Rekursif)
-            string[] Folders = Directory.GetDirectories(absolutepath);
-            for (int i = 0; i < Folders.Length; i++)
+            _graphContext.AddNode(dir, dir);
+            _graphContext.UpdateView();
+
+            RecursiveSearch(dir, fileToFind, exhaustive);
+
+            _result.ForEach(
+                filePath =>
+                {
+                    _graphContext.ColorizePath(filePath, ColorPalette.BLUE);
+                });
+        }
+
+        private void RecursiveSearch(
+            string dir,
+            string fileToFind,
+            bool exhaustive
+            )
+        {
+
+            /*
+            dir - path absolute dari folder yang ingin dicari isinya
+            namaFolderSaatIni - mengambil nama terahir dari sebuah absolute path, digunakan untuk menyambungkan graf
+            file_yang_dicari - nama dari file yang dicari
+            exhaustive - True jika ingin mencari semua file, false jika tidak
+            */
+
+            //Kalo File Belum Ketemu atau mode yang dicari adalah mecari semua file 
+            if (!_found || exhaustive)
             {
-                string folderPath = Folders[i];
-                string folderBasename = Path.GetRelativePath(absolutepath, folderPath);
-
-                // TODO: Enqueue absolute path
-                //graphContext.EnqueueAddEdge(namaFolderSaatIni, FolderName);
-                //graphContext.RequestUpdateView();
-
-
-                graphContext.AddNode(folderPath, folderBasename);
-                graphContext.AddEdge(parentPath, folderPath);
-
-                DFS(Folders[i], folderBasename, file_yang_dicari, all);
-
-                //graphContext.EnqueueColorEdge(namaFolderSaatIni, folderBasename,
-                //    new Color(0, 0, 255));
-
-                if (found && !all)
+                //Ngecek Folder (Bagian Rekursif)
+                string[] folders = Directory.GetDirectories(dir);
+                for (int i = 0; i < folders.Length; i++)
                 {
-                    break;
-                }
-                else
-                {
-                    graphContext.ColorizeEdge(folderPath, ColorPalette.RED);
-                }
-            }
+                    string folderPath = folders[i];
+                    string folderBasename = Path.GetRelativePath(dir, folderPath);
 
-            if (!found || all)
-            {
-                string[] files = Directory.GetFiles(absolutepath, "*");
-                foreach (var filePath in files)
-                {
-                    if (!found || all)
+                    _graphContext.AddNode(folderPath, folderBasename);
+                    _graphContext.AddEdge(dir, folderPath);
+
+                    RecursiveSearch(folders[i], fileToFind, exhaustive);
+
+                    if (_found && !exhaustive)
                     {
-                        string fileName = Path.GetRelativePath(absolutepath, filePath);
-
-
-
-                        // TODO: Enqueue absolute path
-
-                        graphContext.AddNode(filePath, fileName);
-                        graphContext.AddEdge(parentPath, filePath);
-
-                        if (fileName == file_yang_dicari)
-                        {
-                            found = true;
-                            _result.Add(filePath);
-                        }
-                        else
-                        {
-                            graphContext.ColorizeEdge(filePath, ColorPalette.RED);
-                        }
-
-                        //graphContext.EnqueueAddEdge(namaFolderSaatIni, FileName);
-                        //graphContext.RequestUpdateView();
+                        break;
+                    }
+                    else
+                    {
+                        _graphContext.ColorizeEdge(folderPath, ColorPalette.RED);
                     }
                 }
 
+                if (!_found || exhaustive)
+                {
+                    string[] files = Directory.GetFiles(dir, "*");
+                    foreach (var filePath in files)
+                    {
+                        if (!_found || exhaustive)
+                        {
+                            string fileName = Path.GetRelativePath(dir, filePath);
+                            _graphContext.AddNode(filePath, fileName);
+                            _graphContext.AddEdge(dir, filePath);
+
+                            if (fileName == fileToFind)
+                            {
+                                _found = true;
+                                _result.Add(filePath);
+                            }
+                            else
+                            {
+                                _graphContext.ColorizeEdge(filePath, ColorPalette.RED);
+                            }
+                        }
+                    }
+
+                }
             }
         }
 
-        if (absolutepath == namaFolderSaatIni)
+        public List<string> Result()
         {
-            _result.ForEach(
-                (string filePath) =>
-                {
-                    graphContext.ColorizePath(filePath, ColorPalette.BLUE);
-                });
+            return _result;
         }
-    }
 
-    public List<string> Result()
-    {
-        return _result;
     }
-
 }
+

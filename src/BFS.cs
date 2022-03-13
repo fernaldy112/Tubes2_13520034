@@ -5,55 +5,43 @@ using System.IO;
 
 namespace FolderCrawler
 {
-    public class BFSClass
+    public class Bfs
     {
-        private GraphContext _graphContext;
+        private readonly GraphContext _graphContext;
+        private readonly List<string> _result;
 
-        private List<string> _result;
-
-        public BFSClass(ref GraphContext Context)
+        public Bfs(ref GraphContext context)
         {
-            _graphContext = Context;
+            _graphContext = context;
             _result = new List<string>();
         }
 
-        public void BFS(string dir, string file_yang_dicari, bool all)
+        public void Search(string dir, string fileToFind, bool exhaustive)
         {
-            Queue<string> dirQueue = new Queue<string>();
-            string curDir, FileName, FolderName;
-            string[] files, folders;
+            Queue<string> dirQueue = new();
             bool found = false;
-            int i, n;
-
 
             dirQueue.Enqueue(dir);
-            while (!(dirQueue.Count == 0) && !(found && !all))
+            while (dirQueue.Count != 0 && !(found && !exhaustive))
             {
-                curDir = dirQueue.Dequeue();
+                string currentDir = dirQueue.Dequeue();
+                _graphContext.AddNode(currentDir,
+                    new DirectoryInfo(currentDir).Name);
+                string[] files = Directory.GetFiles(currentDir, "*");
 
-                _graphContext.AddNode(curDir,
-                    new DirectoryInfo(curDir).Name);
-
-                files = Directory.GetFiles(curDir, "*");
-
-                // TODO: Enqueue node & edge
-                for (i = 0; i < files.Length; i++)
+                foreach (string file in files)
                 {
-                    string parent = curDir;
-                    string filePath = files[i];
-
-                    _graphContext.AddNode(filePath,
-                        new DirectoryInfo(filePath).Name);
-                    _graphContext.AddEdge(parent, filePath);
+                    _graphContext.AddNode(file,
+                        new DirectoryInfo(file).Name);
+                    _graphContext.AddEdge(currentDir, file);
                 }
 
-                i = 0;
-                n = files.Length;
-                while (i < n && !(found && !all))
+                int i = 0;
+                int n = files.Length;
+                while (i < n && !(found && !exhaustive))
                 {
-                    FileName = Path.GetRelativePath(curDir, files[i]);
-                    Console.WriteLine(FileName);
-                    if (FileName == file_yang_dicari)
+                    string fileName = Path.GetRelativePath(currentDir, files[i]);
+                    if (fileName == fileToFind)
                     {
                         found = true;
                         _graphContext.ColorizeEdge(files[i], ColorPalette.BLUE);
@@ -61,36 +49,31 @@ namespace FolderCrawler
                     }
                     else
                     {
-                        // TODO: Color dead end node edge
                         _graphContext.ColorizeEdge(files[i], ColorPalette.RED);
                     }
                     i++;
 
                 }
 
-                folders = Directory.GetDirectories(curDir);
+                string[] folders = Directory.GetDirectories(currentDir);
                 i = 0;
                 n = folders.Length;
-                while (i < n && !(found && !all))
+                while (i < n && !(found && !exhaustive))
                 {
-                    //Console.WriteLine(FolderName);
-                    string folderPath = folders[i];
-                    dirQueue.Enqueue(folderPath);
+                    dirQueue.Enqueue(folders[i]);
 
-                    // TODO: Enqueue node & edge
-                    string parent = curDir;
-                    _graphContext.AddNode(folderPath,
-                        new DirectoryInfo(folderPath).Name);
-                    _graphContext.AddEdge(parent, folderPath);
+                    _graphContext.AddNode(folders[i],
+                        new DirectoryInfo(folders[i]).Name);
+                    _graphContext.AddEdge(currentDir, folders[i]);
 
-                    _graphContext.ColorizeEdge(folderPath, ColorPalette.RED);
+                    _graphContext.ColorizeEdge(folders[i], ColorPalette.RED);
 
                     i++;
                 }
             }
 
             _result.ForEach(
-                (string filePath) =>
+                filePath =>
                 {
                     _graphContext.ColorizePath(filePath, ColorPalette.BLUE);
                 });
