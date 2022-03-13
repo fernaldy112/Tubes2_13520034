@@ -47,50 +47,50 @@ namespace FolderCrawler
             if (!_found || exhaustive)
             {
                 //Ngecek Folder (Bagian Rekursif)
-                string[] folders = Directory.GetDirectories(dir);
-                for (int i = 0; i < folders.Length; i++)
+                string[] files = Directory.GetFiles(dir, "*");
+                foreach (var filePath in files)
                 {
-                    string folderPath = folders[i];
-                    string folderBasename = Path.GetRelativePath(dir, folderPath);
-
-                    _graphContext.AddNode(folderPath, folderBasename);
-                    _graphContext.AddEdge(dir, folderPath);
-
-                    RecursiveSearch(folders[i], fileToFind, exhaustive);
-
-                    if (_found && !exhaustive)
+                    if (!_found || exhaustive)
                     {
-                        break;
-                    }
-                    else
-                    {
-                        _graphContext.ColorizeEdge(folderPath, ColorPalette.RED);
+                        string fileName = Path.GetRelativePath(dir, filePath);
+                        _graphContext.AddNode(filePath, fileName);
+                        _graphContext.AddEdge(dir, filePath);
+
+                        if (fileName == fileToFind)
+                        {
+                            _found = true;
+                            _result.Add(filePath);
+                        }
+                        else
+                        {
+                            _graphContext.ColorizeEdge(filePath, ColorPalette.RED);
+                        }
                     }
                 }
+                
 
                 if (!_found || exhaustive)
                 {
-                    string[] files = Directory.GetFiles(dir, "*");
-                    foreach (var filePath in files)
+                    string[] folders = Directory.GetDirectories(dir);
+                    for (int i = 0; i < folders.Length; i++)
                     {
-                        if (!_found || exhaustive)
-                        {
-                            string fileName = Path.GetRelativePath(dir, filePath);
-                            _graphContext.AddNode(filePath, fileName);
-                            _graphContext.AddEdge(dir, filePath);
+                        string folderPath = folders[i];
+                        string folderBasename = Path.GetRelativePath(dir, folderPath);
 
-                            if (fileName == fileToFind)
-                            {
-                                _found = true;
-                                _result.Add(filePath);
-                            }
-                            else
-                            {
-                                _graphContext.ColorizeEdge(filePath, ColorPalette.RED);
-                            }
+                        _graphContext.AddNode(folderPath, folderBasename);
+                        _graphContext.AddEdge(dir, folderPath);
+
+                        RecursiveSearch(folders[i], fileToFind, exhaustive);
+
+                        if (_found && !exhaustive)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            _graphContext.ColorizeEdge(folderPath, ColorPalette.RED);
                         }
                     }
-
                 }
             }
         }
