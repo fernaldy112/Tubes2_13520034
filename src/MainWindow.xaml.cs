@@ -123,6 +123,7 @@ namespace FolderCrawler
                 {
                     if (result.Count != 0)
                     {
+                        ResultView.Items.Clear();
                         result.ForEach(path =>
                         {
                             Hyperlink link = CreateNewResultItem(path);
