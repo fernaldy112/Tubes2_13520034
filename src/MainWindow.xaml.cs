@@ -45,6 +45,7 @@ namespace FolderCrawler
             HideErrorMsg();
             ResultView.Visibility = Visibility.Collapsed;
             _graphContext.ResetGraph();
+            ResultView.Items.Clear();
 
             if (ValidateInput())
             {
@@ -123,7 +124,6 @@ namespace FolderCrawler
                 {
                     if (result.Count != 0)
                     {
-                        ResultView.Items.Clear();
                         result.ForEach(path =>
                         {
                             Hyperlink link = CreateNewResultItem(path);
