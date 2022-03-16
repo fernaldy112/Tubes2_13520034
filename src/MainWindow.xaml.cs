@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Documents;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.Msagl.Drawing;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using DispatcherPriority = System.Windows.Threading.DispatcherPriority;
@@ -55,13 +56,17 @@ namespace FolderCrawler
 
                 bool exhaustive = ExhaustiveCheckBox.IsChecked ?? false;
 
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+
                 if (useDfs)
                 {
                     Task.Run(() =>
                     {
                         Dfs searcher = new(ref _graphContext);
                         searcher.Search(path, fileToSearch, exhaustive);
-                        ShowSearchResult(searcher.Result());
+                        stopwatch.Stop();
+                        ShowSearchResult(searcher.Result(), stopwatch.ElapsedMilliseconds);                        
                     });
                 }
                 else
@@ -70,7 +75,8 @@ namespace FolderCrawler
                     {
                         Bfs searcher = new(ref _graphContext);
                         searcher.Search(path, fileToSearch, exhaustive);
-                        ShowSearchResult(searcher.Result());
+                        stopwatch.Stop();
+                        ShowSearchResult(searcher.Result(), stopwatch.ElapsedMilliseconds);
                     });
                 }
             }
@@ -116,7 +122,7 @@ namespace FolderCrawler
             NotFoundMsg.Visibility = Visibility.Collapsed;
         }
 
-        private void ShowSearchResult(List<string> result)
+        private void ShowSearchResult(List<string> result, long time)
         {
             Application.Current.Dispatcher.BeginInvoke(
                 DispatcherPriority.Background,
@@ -129,6 +135,14 @@ namespace FolderCrawler
                             Hyperlink link = CreateNewResultItem(path);
                             ResultView.Items.Add(link);
                         });
+                        if (time < 100000)
+                        {
+                            ResultView.Items.Add("Waktu Pencarian: " + time + " ms");
+                        }
+                        else {
+                            time /= 100000;
+                            ResultView.Items.Add("Waktu Pencarian: " + time + " s");
+                        }
                         ResultView.Visibility = Visibility.Visible;
                     }
                     else
