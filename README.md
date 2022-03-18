@@ -12,8 +12,8 @@
     or breadth-first search algorithm.
     <br />
     <a href="">View Demo</a>
-    ·
-    <a href="">Documentation</a>
+    Â·
+    <a href="https://folder-crawler.web.app/">Documentation</a>
   </p>
 </div>
 
