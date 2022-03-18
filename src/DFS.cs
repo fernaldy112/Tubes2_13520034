@@ -3,18 +3,49 @@ using System.Collections.Generic;
 
 namespace FolderCrawler
 {
+    /**
+     * <summary>
+     *  <c>Dfs</c> class is a searcher class to search files
+     *  in a given directory using depth-first search algorithm.
+     * </summary>
+     */
     public class Dfs
     {
         private bool _found;
         private readonly GraphContext _graphContext;
         private readonly List<string> _result;
 
+        /**
+         * <summary>
+         *  Creates a new <c>Dfs</c> object with a given
+         *  <c>GraphContext</c> object to visualize the
+         *  search.
+         * </summary>
+         */
         public Dfs(ref GraphContext context)
         {
             _graphContext = context;
             _result = new List<string>();
         }
 
+        /**
+         * <summary>
+         *  Searches for a specific file name in a given directory.
+         *  Searching process can be exhaustive, if necessary.
+         * </summary>
+         *
+         * <param name="dir">
+         *  searching process starting directory
+         * </param>
+         *
+         * <param name="fileToFind">
+         *  file name to find in the directory
+         * </param>
+         *
+         * <param name="exhaustive">
+         *  flag indicating whether the search should be exhaustive
+         * </param>
+         */
         public void Search(string dir, string fileToFind, bool exhaustive)
         {
             _graphContext.AddNode(dir, dir);
@@ -29,6 +60,24 @@ namespace FolderCrawler
                 });
         }
 
+        /**
+         * <summary>
+         *  Recursively searches for a specific file name in a given
+         *  directory.
+         * </summary>
+         *
+         * <param name="dir">
+         *  searching process starting directory
+         * </param>
+         *
+         * <param name="fileToFind">
+         *  file name to find in the directory
+         * </param>
+         *
+         * <param name="exhaustive">
+         *  flag indicating whether the search should be exhaustive
+         * </param>
+         */
         private void RecursiveSearch(
             string dir,
             string fileToFind,
@@ -36,17 +85,9 @@ namespace FolderCrawler
             )
         {
 
-            /*
-            dir - path absolute dari folder yang ingin dicari isinya
-            namaFolderSaatIni - mengambil nama terahir dari sebuah absolute path, digunakan untuk menyambungkan graf
-            file_yang_dicari - nama dari file yang dicari
-            exhaustive - True jika ingin mencari semua file, false jika tidak
-            */
-
-            //Kalo File Belum Ketemu atau mode yang dicari adalah mecari semua file 
             if (!_found || exhaustive)
             {
-                //Ngecek Folder (Bagian Rekursif)
+
                 string[] files = Directory.GetFiles(dir, "*");
                 foreach (var filePath in files)
                 {
@@ -67,7 +108,7 @@ namespace FolderCrawler
                         }
                     }
                 }
-                
+
 
                 if (!_found || exhaustive)
                 {
@@ -95,6 +136,16 @@ namespace FolderCrawler
             }
         }
 
+        /**
+         * <summary>
+         *  Retrieves the searching result. Should only be called
+         *  after calling <c>Search()</c>.
+         * </summary>
+         *
+         * <returns>
+         *  a list of path to the searched file to find
+         * </returns>
+         */
         public List<string> Result()
         {
             return _result;

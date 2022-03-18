@@ -5,17 +5,48 @@ using System.IO;
 
 namespace FolderCrawler
 {
+    /**
+     * <summary>
+     *  <c>Bfs</c> class is a searcher class to search files
+     *  in a given directory using breadth-first search algorithm.
+     * </summary>
+     */
     public class Bfs
     {
         private readonly GraphContext _graphContext;
         private readonly List<string> _result;
 
+        /**
+         * <summary>
+         *  Creates a new <c>Bfs</c> object with a given
+         *  <c>GraphContext</c> object to visualize the
+         *  search.
+         * </summary>
+         */
         public Bfs(ref GraphContext context)
         {
             _graphContext = context;
             _result = new List<string>();
         }
 
+        /**
+         * <summary>
+         *  Searches for a specific file name in a given directory.
+         *  Searching process can be exhaustive, if necessary.
+         * </summary>
+         *
+         * <param name="dir">
+         *  searching process starting directory
+         * </param>
+         *
+         * <param name="fileToFind">
+         *  file name to find in the directory
+         * </param>
+         *
+         * <param name="exhaustive">
+         *  flag indicating whether the search should be exhaustive
+         * </param>
+         */
         public void Search(string dir, string fileToFind, bool exhaustive)
         {
             Queue<string> dirQueue = new();
@@ -79,6 +110,16 @@ namespace FolderCrawler
                 });
         }
 
+        /**
+         * <summary>
+         *  Retrieves the searching result. Should only be called
+         *  after calling <c>Search()</c>.
+         * </summary>
+         *
+         * <returns>
+         *  a list of path to the searched file to find
+         * </returns>
+         */
         public List<string> Result()
         {
             return _result;

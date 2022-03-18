@@ -12,13 +12,24 @@ using DispatcherPriority = System.Windows.Threading.DispatcherPriority;
 namespace FolderCrawler
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// <c>MainWindow</c> class is the code-behind of
+    /// the main GUI window.
     /// </summary>
     public partial class MainWindow : Window
     {
 
+        /**
+         * <summary>
+         *  Graph context object to pass to searcher object.
+         * </summary>
+         */
         private GraphContext _graphContext;
 
+        /**
+         * <summary>
+         *  Creates the main window to display to the user.
+         * </summary>
+         */
         public MainWindow()
         {
             InitializeComponent();
@@ -26,6 +37,12 @@ namespace FolderCrawler
             _graphContext.ResetGraph();
         }
 
+        /**
+         * <summary>
+         *  Will be called when the user press <c>Choose Directory ...</c>
+         *  button.
+         * </summary>
+         */
         private void OnChooseDir(object sender, RoutedEventArgs e)
         {
             CommonOpenFileDialog dialog = new();
@@ -40,7 +57,11 @@ namespace FolderCrawler
             }
         }
 
-
+        /**
+         * <summary>
+         *  Will be called when the user press the <c>SEARCH</c> button.
+         * </summary>
+         */
         private void OnSearch(object sender, RoutedEventArgs e)
         {
             HideErrorMsg();
@@ -66,7 +87,7 @@ namespace FolderCrawler
                         Dfs searcher = new(ref _graphContext);
                         searcher.Search(path, fileToSearch, exhaustive);
                         stopwatch.Stop();
-                        ShowSearchResult(searcher.Result(), stopwatch.ElapsedMilliseconds);                        
+                        ShowSearchResult(searcher.Result(), stopwatch.ElapsedMilliseconds);
                     });
                 }
                 else
@@ -82,6 +103,16 @@ namespace FolderCrawler
             }
         }
 
+        /**
+         * <summary>
+         *  Retrieves user searching input data & validates them.
+         * </summary>
+         *
+         * <returns>
+         *  true if all necessary input exists & valid, false
+         *  otherwise
+         * </returns>
+         */
         private bool ValidateInput()
         {
             bool valid = true;
@@ -114,6 +145,12 @@ namespace FolderCrawler
             return valid;
         }
 
+        /**
+         * <summary>
+         *  Hides all error messages. Always called before searching
+         *  process starts.
+         * </summary>
+         */
         private void HideErrorMsg()
         {
             ModeErrorMsg.Visibility = Visibility.Collapsed;
@@ -122,6 +159,20 @@ namespace FolderCrawler
             NotFoundMsg.Visibility = Visibility.Collapsed;
         }
 
+        /**
+         * <summary>
+         *  Dynamically creates Hyperlink objects from searching results
+         *  and add them to the GUI.
+         * </summary>
+         *
+         * <param name="result">
+         *  the searching result
+         * </param>
+         *
+         * <param name="time">
+         *  total searching duration
+         * </param>
+         */
         private void ShowSearchResult(List<string> result, long time)
         {
             Application.Current.Dispatcher.BeginInvoke(
@@ -139,7 +190,8 @@ namespace FolderCrawler
                         {
                             ResultView.Items.Add("Waktu Pencarian: " + time + " ms");
                         }
-                        else {
+                        else
+                        {
                             time /= 100000;
                             ResultView.Items.Add("Waktu Pencarian: " + time + " s");
                         }
@@ -152,6 +204,20 @@ namespace FolderCrawler
                 });
         }
 
+        /**
+         * <summary>
+         *  Creates a new Hyperlink item from a path.
+         *  The resulting hyperlink will link to the path.
+         * </summary>
+         *
+         * <param name="path">
+         *  the path to point by the hyperlink
+         * </param>
+         *
+         * <returns>
+         *  the hyperlink object that points to the path
+         * </returns>
+         */
         private Hyperlink CreateNewResultItem(string path)
         {
             Hyperlink link = new();

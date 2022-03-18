@@ -6,6 +6,16 @@ using Microsoft.Msagl.WpfGraphControl;
 
 namespace FolderCrawler
 {
+    /**
+     * <summary>
+     *  <c>GraphContext</c> acts as a context regarding
+     *  graph modifications. This class provides just enough
+     *  necessary methods to modify the graph needed by
+     *  the application. The class also holds nodes, edges,
+     *  and node parents data to enable same node labeling &
+     *  graph edge backtracking.
+     * </summary>
+     */
     public class GraphContext
     {
         private readonly AutomaticGraphLayoutControl _control;
@@ -15,6 +25,17 @@ namespace FolderCrawler
         private Dictionary<string, Edge> _edges;
         private Dictionary<string, string> _parents;
 
+        /**
+         * <summary>
+         *  Creates a new <c>GraphContext</c> object from a
+         *  given graph control and initializes every data to
+         *  empty.
+         * </summary>
+         *
+         * <param name="control">
+         *  the graph control to use and modify by the context
+         * </param>
+         */
         public GraphContext(
             ref AutomaticGraphLayoutControl control
             )
@@ -26,6 +47,13 @@ namespace FolderCrawler
             _parents = new Dictionary<string, string>();
         }
 
+        /**
+         * <summary>
+         *  Resets the graph in the control to an empty
+         *  graph (null graph), i.e. having no nodes
+         *  at all.
+         * </summary>
+         */
         public void ResetGraph()
         {
             _control.Graph = new Graph();
@@ -35,6 +63,20 @@ namespace FolderCrawler
             UpdateView();
         }
 
+        /**
+         * <summary>
+         *  Adds a new node to the graph with a given path
+         *  and label.
+         * </summary>
+         *
+         * <param name="path">
+         *  the file or directory path the node resembles
+         * </param>
+         *
+         * <param name="label">
+         *  the label of the node displayed in the GUI
+         * </param>
+         */
         public void AddNode(string path, string label)
         {
             if (!_nodes.TryGetValue(path, out Node node))
@@ -51,6 +93,20 @@ namespace FolderCrawler
             }
         }
 
+        /**
+         * <summary>
+         *  Adds a new edge to the graph from a given source node
+         *  path and destination node path.
+         * </summary>
+         *
+         * <param name="sourceNode">
+         *  the source node path
+         * </param>
+         *
+         * <param name="destNode">
+         *  the destination node path
+         * </param>
+         */
         public void AddEdge(string sourceNode, string destNode)
         {
             if (!_nodes.TryGetValue(sourceNode, out Node _)
@@ -75,6 +131,20 @@ namespace FolderCrawler
             }
         }
 
+        /**
+         * <summary>
+         *  Colorizes an edge that points to a specific
+         *  destination node with a specific color.
+         * </summary>
+         *
+         * <param name="destNode">
+         *  the destination node path
+         * </param>
+         *
+         * <param name="color">
+         *  the color to colorize the node
+         * </param>
+         */
         public void ColorizeEdge(string destNode, Color color)
         {
             if (!_edges.TryGetValue(destNode, out Edge edge))
@@ -91,6 +161,20 @@ namespace FolderCrawler
                 }).Wait();
         }
 
+        /**
+         * <summary>
+         *  Recursively colorizes the edges from the starting node
+         *  to a specific destination node with a specific color.
+         * </summary>
+         *
+         * <param name="destNode">
+         *  the destination node path
+         * </param>
+         *
+         * <param name="color">
+         *  the color to colorize the node
+         * </param>
+         */
         public void ColorizePath(string destNode, Color color)
         {
             string path = destNode;
@@ -104,6 +188,12 @@ namespace FolderCrawler
             }
         }
 
+        /**
+         * <summary>
+         *  Update the view of the graph displayed in the GUI
+         *  immediately.
+         * </summary>
+         */
         public void UpdateView()
         {
             Application.Current.Dispatcher.BeginInvoke(
