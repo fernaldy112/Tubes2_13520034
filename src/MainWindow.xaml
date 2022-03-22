@@ -31,73 +31,79 @@
                     Width="3*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
 
-            <StackPanel
+            <Border
                 Grid.Column="0"
                 Margin="16 16 16 16"
+                BorderBrush="Black"
+                BorderThickness="1">
+                <StackPanel
+                Grid.Column="0"
+                Margin="16 16 16 16"
+                
                 >
 
-                <TextBlock
+                    <TextBlock
                     Text="Directory"
                     Margin="16"
                     FontSize="18"
                     Style="{StaticResource DefaultFont}"
                     ></TextBlock>
 
-                <Grid
+                    <Grid
                     Height="48">
 
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition
                             Width="128"></ColumnDefinition>
-                        <ColumnDefinition
+                            <ColumnDefinition
                             Width="24"></ColumnDefinition>
-                        <ColumnDefinition
+                            <ColumnDefinition
                             Width="*"></ColumnDefinition>
-                    </Grid.ColumnDefinitions>
+                        </Grid.ColumnDefinitions>
 
-                    <Button
+                        <Button
                         Style="{StaticResource DefaultFont}"
                         Content="Choose Directory ..."
                         Click="OnChooseDir"
                     >
-                        <Button.Effect>
-                            <DropShadowEffect
+                            <Button.Effect>
+                                <DropShadowEffect
                                 BlurRadius="8"
                                 Color="Black"
                                 Opacity="0.25"
                                 ShadowDepth="4"
                                 RenderingBias="Performance" Direction="270">
-                            </DropShadowEffect>
-                        </Button.Effect>
-                        <Button.BorderBrush>
-                            <SolidColorBrush
+                                </DropShadowEffect>
+                            </Button.Effect>
+                            <Button.BorderBrush>
+                                <SolidColorBrush
                                 Color="#ffffff"></SolidColorBrush>
-                        </Button.BorderBrush>
-                        <Button.Background>
-                            <SolidColorBrush
+                            </Button.BorderBrush>
+                            <Button.Background>
+                                <SolidColorBrush
                                 Color="White">
-                            </SolidColorBrush>
-                        </Button.Background>
-                    </Button>
+                                </SolidColorBrush>
+                            </Button.Background>
+                        </Button>
 
-                    <Border
+                        <Border
                         Grid.Column="2"
                         CornerRadius="8"
                         BorderThickness="1"
                         BorderBrush="#242424"
                     >
-                        <TextBlock
+                            <TextBlock
                             Margin="8"
                             VerticalAlignment="Center"
                             x:Name="DirectoryPath"
                             Style="{StaticResource DefaultFont}"
                             FontSize="16"
                             Text="No Directory Chosen"></TextBlock>
-                    </Border>
+                        </Border>
 
-                </Grid>
+                    </Grid>
 
-                <TextBlock
+                    <TextBlock
                     Text="Please choose a directory!"
                     FontSize="12"
                     Margin="0 8"
@@ -107,14 +113,14 @@
                     x:Name="DirectoryErrorMsg"
                 ></TextBlock>
 
-                <TextBlock
+                    <TextBlock
                     Text="Search file"
                     Margin="16"
                     FontSize="18"
                     Style="{StaticResource DefaultFont}"
                 ></TextBlock>
 
-                <TextBox
+                    <TextBox
                     x:Name="SearchInput"
                     Padding="4 8"
                     BorderBrush="White"
@@ -122,7 +128,7 @@
                     Style="{StaticResource DefaultFont}"
                 ></TextBox>
 
-                <TextBlock
+                    <TextBlock
                     Text="File name can not be empty!"
                     FontSize="12"
                     Margin="0 8"
@@ -132,52 +138,52 @@
                     x:Name="SearchErrorMsg"
                 ></TextBlock>
 
-                <CheckBox
+                    <CheckBox
                     Margin="0 8"
                     VerticalContentAlignment="Center"
                     x:Name="ExhaustiveCheckBox">
-                    <TextBlock
+                        <TextBlock
                         Text="Exhaustive"
                         Margin="8 0 0 0"
                         Style="{StaticResource DefaultFont}"
                         FontSize="16">
-                    </TextBlock>
-                </CheckBox>
+                        </TextBlock>
+                    </CheckBox>
 
 
-                <TextBlock
+                    <TextBlock
                     Text="Mode"
                     Margin="16"
                     Style="{StaticResource DefaultFont}"
                     FontSize="18"
                 ></TextBlock>
 
-                <RadioButton
+                    <RadioButton
                     GroupName="Mode"
                     Margin="0 4 0 8"
                     VerticalContentAlignment="Center"
                     x:Name="BfsModeButton">
-                    <TextBlock
+                        <TextBlock
                         Text="BFS"
                         Style="{StaticResource DefaultFont}"
                         Margin="8 0"
                         FontSize="16">
-                    </TextBlock>
-                </RadioButton>
-                <RadioButton
+                        </TextBlock>
+                    </RadioButton>
+                    <RadioButton
                     GroupName="Mode"
                     Margin="0 8"
                     VerticalContentAlignment="Center"
                     x:Name="DfsModeButton">
-                    <TextBlock
+                        <TextBlock
                         Text="DFS"
                         Margin="8 0"
                         Style="{StaticResource DefaultFont}"
                         FontSize="16">
-                    </TextBlock>
-                </RadioButton>
+                        </TextBlock>
+                    </RadioButton>
 
-                <TextBlock
+                    <TextBlock
                     Text="Please choose a searching mode!"
                     FontSize="12"
                     Margin="0 8"
@@ -187,7 +193,7 @@
                     x:Name="ModeErrorMsg"
                 ></TextBlock>
 
-                <Button
+                    <Button
                     Background="#00b0ff"
                     Content="SEARCH"
                     Style="{StaticResource DefaultFont}"
@@ -199,14 +205,14 @@
                     Foreground="WhiteSmoke"
                     HorizontalAlignment="Left"
                     Click="OnSearch">
-                </Button>
+                    </Button>
 
-                <ListView
+                    <ListView
                     x:Name="ResultView"
                     Visibility="Collapsed">
-                </ListView>
+                    </ListView>
 
-                <TextBlock
+                    <TextBlock
                     Text="File not found!"
                     FontSize="12"
                     Margin="0 8"
@@ -214,16 +220,28 @@
                     Style="{StaticResource DefaultFont}"
                     Visibility="Collapsed"
                     x:Name="NotFoundMsg"
-                ></TextBlock>
+                    ></TextBlock>
 
-            </StackPanel>
+                    <TextBlock
+                        Text=""
+                        FontSize="12"
+                        Margin="0 8"
+                        Foreground="Blue"
+                        Style="{StaticResource DefaultFont}"
+                        Visibility="Collapsed"
+                        x:Name="SearchTimeText"
+                    ></TextBlock>
+
+                </StackPanel>
+            </Border>
+
+
 
             <Border
                 Grid.Column="1"
-                BorderBrush="#00b0ff"
-                CornerRadius="4"
-                BorderThickness="2"
-                Margin="16 16 16 16">
+                Margin="16 16 16 16"
+                BorderBrush="Black"
+                BorderThickness="1">
                 <wpfgc:AutomaticGraphLayoutControl
                     x:Name="GraphControl"
                     VerticalScrollBarVisibility="Hidden">

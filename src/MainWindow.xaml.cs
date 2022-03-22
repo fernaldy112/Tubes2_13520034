@@ -66,6 +66,7 @@ namespace FolderCrawler
         {
             HideErrorMsg();
             ResultView.Visibility = Visibility.Collapsed;
+            SearchTimeText.Visibility = Visibility.Collapsed;
             _graphContext.ResetGraph();
             ResultView.Items.Clear();
 
@@ -188,12 +189,14 @@ namespace FolderCrawler
                         });
                         if (time < 100000)
                         {
-                            ResultView.Items.Add("Waktu Pencarian: " + time + " ms");
+                            SearchTimeText.Text = "Found in " + time + " ms";
+                            SearchTimeText.Visibility = Visibility.Visible;
                         }
                         else
                         {
                             time /= 100000;
-                            ResultView.Items.Add("Waktu Pencarian: " + time + " s");
+                            SearchTimeText.Text = "Found in " + time + " s";
+                            SearchTimeText.Visibility = Visibility.Visible;
                         }
                         ResultView.Visibility = Visibility.Visible;
                     }
