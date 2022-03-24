@@ -11,7 +11,7 @@
     A visualization application of file searching using depth-first search
     or breadth-first search algorithm.
     <br />
-    <a href="">View Demo</a>
+    <a href="https://youtu.be/HWAx0eMPo-8">View Demo</a>
     ·
     <a href="https://folder-crawler.web.app/">Documentation</a>
   </p>
