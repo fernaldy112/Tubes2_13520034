@@ -30,7 +30,7 @@
 *.dylib
 
 # Executables
-*.exe
+# *.exe
 *.out
 *.app
 *.i*86
@@ -64,10 +64,11 @@ dkms.conf
 # Build results
 
 [Dd]ebug/
-[Rr]elease/
+# [Rr]elease/
 x64/
-[Bb]in/
+# [Bb]in/
 [Oo]bj/
+*.json
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
@@ -192,3 +193,4 @@ _NCrunch*
 
 # Firebase
 **firebase**
+
